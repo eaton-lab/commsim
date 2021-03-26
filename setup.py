@@ -12,7 +12,7 @@ setup(
     version="0.0.1",
     author="Jared Meek",
     packages=["commsim"],
-    entry_points={
-        'console_scripts': ['commsim = Species.__main__:main']
-    }
+    #entry_points={
+    #    'console_scripts': ['commsim = Species.__main__:main']
+    #}
 )
