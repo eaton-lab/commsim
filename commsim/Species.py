@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
 """
-
+Species Class for storing: idx, origin, decay (disperal, bioclim (dict)
 """
-
-import numpy as np
 
 
 class Species:
@@ -43,7 +41,13 @@ class Species:
         """
         custom repr shows species global idx, origin, and decay"
         """
-        return f"<Species idx={self.idx}, o={self.origin}, e={self.decay}, bioclim={self.bioclim}>"
+        attribs = (
+            f"<Species idx={self.idx}, "
+            f"o={self.origin}, "
+            f"e={self.decay}, "
+            f"bioclim={self.bioclim}>"
+        )
+        return attribs
 
 
 
