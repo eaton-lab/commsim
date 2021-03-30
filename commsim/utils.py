@@ -27,9 +27,9 @@ TTY2 = sys.stdout.isatty()
 
 def set_loglevel(loglevel="INFO"):
     """
-    Set the loglevel for loguru logger. Using 'enable' here as 
+    Set the loglevel for loguru logger. Using 'enable' here as
     described in the loguru docs for logging inside of a library.
-    This sets the level at which logger calls will be displayed 
+    This sets the level at which logger calls will be displayed
     throughout the rest of the code.
     """
     config = {}

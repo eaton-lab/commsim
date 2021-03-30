@@ -21,7 +21,7 @@ class Layer:
     Base class for Environmental Layers. Allows adding layers together
     and drawing layers.
     """
-    def __init__(self, shape:Tuple[int, int]=(10,10)):
+    def __init__(self, shape: Tuple[int, int] = (10, 10)):
         self.shape = shape
         self.arr = np.zeros(self.shape, dtype=float)
         self.data = pd.DataFrame()
@@ -48,8 +48,8 @@ class Layer:
         Returns an altair heatmap drawing of self.data
         """
         base = alt.Chart(self.data).mark_rect().encode(
-            x=alt.X("x:O", axis=None),#alt.Axis(labels=False)),
-            y=alt.Y('y:O', axis=None),#alt.Axis(labels=False)),
+            x=alt.X("x:O", axis=None),  # alt.Axis(labels=False)),
+            y=alt.Y('y:O', axis=None),  # alt.Axis(labels=False)),
             color='z:Q',
             tooltip=[
                 alt.Tooltip('z:Q', title='z')
@@ -58,17 +58,16 @@ class Layer:
         return alt.concat(base)
 
 
-
 class Linear(Layer):
     """
     Generate a layer with an gradient applied linearly across its shape.
     """
     def __init__(
-        self, 
-        shape: Tuple[int, int]=(10, 10), 
-        minval:float=0, 
-        maxval:float=1, 
-        angle:int=0,
+        self,
+        shape: Tuple[int, int] = (10, 10),
+        minval: float = 0,
+        maxval: float = 1,
+        angle: int = 0,
     ):
         # init Layer base class
         super().__init__(shape=shape)
@@ -82,7 +81,7 @@ class Linear(Layer):
         self.generate()
 
     def __repr__(self):
-        return "<Linear Layer>"        
+        return "<Linear Layer>"
 
     def generate(self):
         """
@@ -125,10 +124,9 @@ class Linear(Layer):
             })
 
 
-
 class Gaussian(Layer):
     """
-    Generate a layer with random gaussian 
+    Generate a layer with random gaussian
 
     Parameters
     -----------
@@ -148,13 +146,13 @@ class Gaussian(Layer):
     """
     def __init__(
         self,
-        shape:Tuple[int, int]=(10, 10), 
-        peaks:int=2,
-        minval:float=0,
-        maxval:float=1,
-        decay:float=2,
-        seed:Union[int,None]=None,
-        ):
+        shape: Tuple[int, int] = (10, 10),
+        peaks: int = 2,
+        minval: float = 0,
+        maxval: float = 1,
+        decay: float = 2,
+        seed: Union[int, None] = None,
+    ):
 
         super().__init__(shape=shape)
         self.peaks = peaks
@@ -173,7 +171,7 @@ class Gaussian(Layer):
         help
         """
         origins = [(
-            np.random.randint(0, self.shape[0]), 
+            np.random.randint(0, self.shape[0]),
             np.random.randint(0, self.shape[1]),
             ) for point in range(self.peaks)
         ]
@@ -183,8 +181,8 @@ class Gaussian(Layer):
             for xpos in range(elev.shape[1]):
                 for ypos in range(elev.shape[2]):
                     elev[eidx, xpos, ypos] = euclidean_dist(
-                        origins[eidx][0], 
-                        origins[eidx][1], 
+                        origins[eidx][0],
+                        origins[eidx][1],
                         xpos, ypos)
 
             # exponential decay
@@ -192,7 +190,7 @@ class Gaussian(Layer):
 
             # normal (gaussian) decay
             elev[eidx] = stats.norm.pdf(elev[eidx], loc=0, scale=self.decay)
-    
+
         # normalize elev layer to 0-1
         elev = elev.sum(axis=0)
         elev = elev - elev.min()
@@ -203,12 +201,12 @@ class Gaussian(Layer):
         elev *= multiplier
         elev += self.minval
         elev = elev.max() - elev
-    
+
         # store data
         self.arr = elev
         xspan, yspan = np.meshgrid(
-            np.linspace(0, 1, self.shape[0]), 
-            np.linspace(0, 1, self.shape[1]),            
+            np.linspace(0, 1, self.shape[0]),
+            np.linspace(0, 1, self.shape[1]),
         )
         self.data = pd.DataFrame({
             'x': xspan.ravel(),
@@ -217,36 +215,35 @@ class Gaussian(Layer):
         })
 
 
-
 class Environment:
     """
     Generates and stores a 3-d matrix of environment Layers.
-    Environmental variables (bioclims) are added as simple gradients 
-    with min,max values, and they are then transformed by elevation 
-    which can apply a different coefficient to each variable 
+    Environmental variables (bioclims) are added as simple gradients
+    with min,max values, and they are then transformed by elevation
+    which can apply a different coefficient to each variable
     (how strongly it correlates with elevation).
 
     The environmental matrix is created during init and then there
     are draw functions available to visualize the array layers.
-    
+
     Parameters:
     -----------
     ...
     """
     def __init__(
-        self, 
-        shape:Tuple[int,int]=(10,10),
-        bioclims:Union[Dict[str,Layer], None]=None,
-        elevation:Union[Dict[str,float], None]=None,
-        ):
-              
+        self,
+        shape: Tuple[int, int] = (10, 10),
+        bioclims: Union[Dict[str, Layer], None] = None,
+        elevation: Union[Dict[str, float], None] = None,
+    ):
+
         self.shape = (shape[0], shape[1], 1)
         self.bioclims = bioclims
         self.elevation = elevation
-        # self.arr = np.zeros(arrshape, dtype=float)       
+        # self.arr = np.zeros(arrshape, dtype=float)
         # elevation multipliers
         # self.elevation = elevation
-        # self.elev = np.zeros((1, shape[0], shape[1]), dtype=float)        
+        # self.elev = np.zeros((1, shape[0], shape[1]), dtype=float)
 
         # fill base gradient layers first
         self._apply_base_gradient_layers()
@@ -254,17 +251,15 @@ class Environment:
         # then transform base layers by elevation
         self._apply_elevation_transform()
 
-
     def __repr__(self):
         return f"<Environment shape=({self.shape})>"
-
 
     def _apply_base_gradient_layers(self):
         pass
 
     def _apply_elevation_transform(self):
-        pass  
-    
+        pass
+
     def draw(self):
         """
         Returns a toyplot (canvas, axes) tuple of grid env.
@@ -272,12 +267,9 @@ class Environment:
         # chart = alt.Chart(source=)
 
 
-
 def euclidean_dist(xorig, yorig, xnew, ynew):
     "returns the euclidean_dist between two coordinate points"
     return np.sqrt((((xorig - xnew) ** 2) + ((yorig - ynew) ** 2)))
-
-
 
 
 if __name__ == "__main__":
